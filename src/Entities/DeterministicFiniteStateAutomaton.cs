@@ -156,11 +156,11 @@ namespace DFA_Analyzer.Entities
             return ((IList) this._finalStates).Contains(state);
         }
         
-        private int Σ(int state, char symbol)
+        private int Σ(int state, char alpha)
         {
             if (!_transitionTable.TryGetValue(state, out var transition)) return 0;
-            if (!transition.ContainsKey(symbol)) return 0;
-            var nextState = _transitionTable[state][symbol];
+            if (!transition.ContainsKey(alpha)) return 0;
+            var nextState = _transitionTable[state][alpha];
             return nextState;
         }
 
