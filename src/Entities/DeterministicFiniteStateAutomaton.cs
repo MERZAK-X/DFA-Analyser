@@ -60,7 +60,7 @@ namespace DFA_Analyzer.Entities
         {
             #region Variables
             
-            var automaton = $"Automaton {_name} : ";
+            var automaton = $"Automaton [{_name}] : ";
             var states = new List<int>();
             
             #endregion
@@ -114,7 +114,7 @@ namespace DFA_Analyzer.Entities
                 .Aggregate(automaton, (current1, keyValuePair) 
                     => keyValuePair.Value
                     .Aggregate(current1, (current, pair) 
-                        => current + $" [ δ({keyValuePair.Key}, {pair.Key}) = {pair.Value} ] "));
+                        => current + $" [ σ({keyValuePair.Key}, {pair.Key}) = {pair.Value} ] "));
 
             #endregion
 
