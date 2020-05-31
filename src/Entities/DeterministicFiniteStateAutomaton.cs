@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace DFA_Analyzer.Entities
 {
@@ -67,13 +66,13 @@ namespace DFA_Analyzer.Entities
 
             #region Fill States List
 
-            foreach (var keyValuePair in this._transitionTable) // fill states list
-                foreach (var pair in keyValuePair.Value)
+            foreach (var (key, value) in this._transitionTable) // fill states list
+                foreach (var (_, i) in value)
                 {
-                    if (states.IndexOf(pair.Value) == -1)
-                        states.Add(pair.Value);
-                    if (states.IndexOf(keyValuePair.Key) == -1)
-                        states.Add(keyValuePair.Key);
+                    if (states.IndexOf(i) == -1)
+                        states.Add(i);
+                    if (states.IndexOf(key) == -1)
+                        states.Add(key);
                 }
 
             #endregion

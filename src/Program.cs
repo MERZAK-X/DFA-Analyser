@@ -9,9 +9,9 @@ namespace DFA_Analyzer
         {
             try
             {
-                DFSA automaton = DFSA.CreateInstance(args[0]);
+                var automaton = DFSA.CreateInstance(args[0]);
                 automaton.Print();
-                var word = "0";
+                var word = "∅";
                 while(word != "-1"){
                     Console.WriteLine("Enter a word (-1 to exit) : ");
                     word = Console.ReadLine();
