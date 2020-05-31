@@ -12,7 +12,7 @@ namespace DFA_Analyzer.Entities
         #region Variables
         private int _startState, _statesNumber;
         private int []_finalStates;
-        private string _alphabet;
+        private string _alphabet, _name;
         private Dictionary<int, Dictionary<char, int>> _transitionTable;
         #endregion
 
@@ -26,6 +26,7 @@ namespace DFA_Analyzer.Entities
         private DFSA(string filename)
         {
             var lines = File.ReadAllLines(filename);
+            _name = Path.GetFileNameWithoutExtension(filename);
             _statesNumber = int.Parse(lines[0]);
             _alphabet = lines[1];
             _startState = int.Parse(lines[2]); // Get states from file
@@ -59,7 +60,7 @@ namespace DFA_Analyzer.Entities
         {
             #region Variables
             
-            var automaton = "";
+            var automaton = $"Automaton {_name} : ";
             var states = new List<int>();
             
             #endregion
@@ -88,7 +89,7 @@ namespace DFA_Analyzer.Entities
                 automaton += ", ";
                 iteration++;
             }
-            automaton += "}\n";
+            automaton += "} ; ";
             
             #endregion
             
@@ -108,17 +109,17 @@ namespace DFA_Analyzer.Entities
 
             #region Transitions {σ}
             
-            automaton += "}\nTransitions:";
+            automaton += "} ; Transitions: {";
             automaton = this._transitionTable
                 .Aggregate(automaton, (current1, keyValuePair) 
                     => keyValuePair.Value
                     .Aggregate(current1, (current, pair) 
-                        => current + $"\nδ({keyValuePair.Key}, {pair.Key}) = {pair.Value}"));
+                        => current + $" [ δ({keyValuePair.Key}, {pair.Key}) = {pair.Value} ] "));
 
             #endregion
 
             #region Initial States {q₀}
-            automaton += $"\nq₀ = {this._startState}\n";
+            automaton += $"}} ; q₀ = {this._startState} ; ";
             #endregion
 
             #region Final States {F}
