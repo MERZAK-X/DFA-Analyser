@@ -3,9 +3,9 @@ using DFA_Analyzer.Entities;
 
 namespace DFA_Analyzer
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             try
             {
