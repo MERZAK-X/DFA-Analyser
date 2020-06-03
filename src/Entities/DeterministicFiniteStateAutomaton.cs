@@ -3,16 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DFA_Analyzer.Utils;
 
 namespace DFA_Analyzer.Entities
 {
-    public class DFSA
+    public class DFSA : Automaton
     {
         #region Variables
         private int _startState, _statesNumber;
-        private int []_finalStates;
+        private int[] _finalStates;
+        private List<int> _states = new List<int>();
         private string _alphabet, _name;
-        private Dictionary<int, Dictionary<char, int>> _transitionTable;
+        private TransitionsMap _transitions = new TransitionsMap();
         #endregion
 
         #region Contructor & Factory
@@ -31,23 +33,15 @@ namespace DFA_Analyzer.Entities
             _startState = int.Parse(lines[2]); // Get states from file
             var finalStatesAsString = lines[4].Split(' ');
             _finalStates = Array.ConvertAll(finalStatesAsString, int.Parse);
-            _transitionTable = new Dictionary<int, Dictionary<char, int>>();
             for (var i = 5; i <= lines.Length -1; i++)
             {
                 var state = int.Parse(lines[i].Split(' ')[0]);
                 var symbol = char.Parse(lines[i].Split(' ')[1]);
                 var nextState = int.Parse(lines[i].Split(' ')[2]);
-
-                if (_transitionTable.ContainsKey(state)) {
-                    Dictionary<char, int> res;   
-                    _transitionTable.TryGetValue(state, out res);
-                    res?.Add(symbol, nextState);
-                    _transitionTable[state] = res;
-                } else {
-                    var dict = new Dictionary<char, int>();
-                    dict.Add(symbol, nextState);
-                    _transitionTable.Add(state, dict);
-                }
+                _states.AddIfNotExists(state); _states.AddIfNotExists(nextState);
+                try {
+                    _transitions.AddIfNotExists(new Transition(state, symbol, nextState));
+                } catch (Exception) { continue; }
             }
         }
 
@@ -58,43 +52,26 @@ namespace DFA_Analyzer.Entities
         public override string ToString()
         {
             #region Variables
-            
             var automaton = $"Automaton [{_name}] : ";
-            var states = new List<int>();
-            
-            #endregion
-
-            #region Fill States List
-
-            foreach (var (key, value) in this._transitionTable) // fill states list
-                foreach (var (_, i) in value)
-                {
-                    if (states.IndexOf(i) == -1)
-                        states.Add(i);
-                    if (states.IndexOf(key) == -1)
-                        states.Add(key);
-                }
-
             #endregion
         
             #region States {E}
             
-            var iteration = 1;
             automaton += "E = {";
-            foreach (var state in states)
+            for (var i = 0; i < _states.Count; i++)
             {
-                automaton += state;
-                if (iteration >= states.Count) continue;
-                automaton += ", ";
-                iteration++;
+                automaton += _states[i];
+                if (i == _states.Count-1) continue;
+                automaton += (i != _states.Count-1) ? ", " : string.Empty;
             }
+
             automaton += "} ; ";
             
             #endregion
             
             #region Alphabet {A}
             
-            iteration = 1;
+            var iteration = 1;
             automaton += "A = {";
             foreach (var c in _alphabet)
             {
@@ -108,17 +85,12 @@ namespace DFA_Analyzer.Entities
 
             #region Transitions {σ}
             
-            automaton += "} ; Transitions: {";
-            automaton = this._transitionTable
-                .Aggregate(automaton, (current1, keyValuePair) 
-                    => keyValuePair.Value
-                    .Aggregate(current1, (current, pair) 
-                        => current + $" [ σ({keyValuePair.Key}, {pair.Key}) = {pair.Value} ] "));
+            automaton += $"}} ; Transitions: {{{_transitions}}}";
 
             #endregion
 
             #region Initial States {q₀}
-            automaton += $"}} ; q₀ = {this._startState} ; ";
+            automaton += $" ; q₀ = {this._startState} ; ";
             #endregion
 
             #region Final States {F}
@@ -147,21 +119,20 @@ namespace DFA_Analyzer.Entities
         {
             var letters = word.ToCharArray();
             var state = this._startState;
-            foreach (var a in letters)
-            {
-                var nextState = this.Σ(state, a);
-                state = nextState;
-            }
+            foreach (var letter in letters)
+                try{
+                    state = _transitions[state, letter];
+                }catch (Exception) {continue;}
             return ((IList) this._finalStates).Contains(state);
         }
         
-        private int Σ(int state, char alpha)
+        /*private int Σ(int state, char alpha)
         {
             if (!_transitionTable.TryGetValue(state, out var transition)) return 0;
             if (!transition.ContainsKey(alpha)) return 0;
             var nextState = _transitionTable[state][alpha];
             return nextState;
-        }
+        }*/
 
         #endregion
         
