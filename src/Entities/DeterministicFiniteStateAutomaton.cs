@@ -122,18 +122,9 @@ namespace DFA_Analyzer.Entities
             foreach (var letter in letters)
                 try{
                     state = _transitions[state, letter];
-                }catch (Exception) {continue;}
+                }catch (Exception) {return false;} // Fixes #1
             return ((IList) this._finalStates).Contains(state);
         }
-        
-        /*private int Σ(int state, char alpha)
-        {
-            if (!_transitionTable.TryGetValue(state, out var transition)) return 0;
-            if (!transition.ContainsKey(alpha)) return 0;
-            var nextState = _transitionTable[state][alpha];
-            return nextState;
-        }*/
-
         #endregion
         
     }
